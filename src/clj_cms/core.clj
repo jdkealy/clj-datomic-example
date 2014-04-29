@@ -7,46 +7,34 @@
    [ring.middleware  keyword-params file file-info stacktrace reload]
    )
   (:require
-   [datomic.api :as d]
    [compojure.route :as route]
    [cheshire.core :as cc]
    [cemerick.friend :as friend]
    (cemerick.friend [workflows :as workflows]
                     [credentials :as creds])
    [compojure.handler :as handler]
+   [clj-cms.config :as config]
    ))
 
-(def uri "datomic:free://localhost:4334/blog")
 
-;; create database
-(d/create-database uri)
-
-;; connect to database
-(def conn (d/connect uri))
-
-;; parse schema edn file
-(def schema-tx (read-string (slurp "resources/schema/users.edn")))
-
-;; submit schema transaction
-(d/transact conn schema-tx)
 
 (defn get-user [id]
   (let [todo
-        (d/touch (d/entity (d/db conn) id))
+        (d/touch (d/entity (d/db config/conn) id))
         ]
     {:username (:user/username todo) :password (:user/password todo) :id (:db/id todo)}))
 
 (defn create-user [username password]
   (let [
         todo @(d/transact
-               conn
+               config/conn
                [{:user/username username :user/password (creds/hash-bcrypt password) :db/id #db/id[:db.part/user]}])
         ]
     (get-user (first (vals (:tempids todo))))))
 
 (defn load-user-record [uname]
   (let [
-        db (d/db conn)
+        db (d/db config/conn)
         users (d/q
                '[:find ?e
                  :in $ ?uname
