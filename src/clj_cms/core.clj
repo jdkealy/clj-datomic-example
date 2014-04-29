@@ -13,38 +13,9 @@
    (cemerick.friend [workflows :as workflows]
                     [credentials :as creds])
    [compojure.handler :as handler]
-   [clj-cms.config :as config]
+
+   [clj-cms.users :as users]
    ))
-
-
-
-(defn get-user [id]
-  (let [todo
-        (d/touch (d/entity (d/db config/conn) id))
-        ]
-    {:username (:user/username todo) :password (:user/password todo) :id (:db/id todo)}))
-
-(defn create-user [username password]
-  (let [
-        todo @(d/transact
-               config/conn
-               [{:user/username username :user/password (creds/hash-bcrypt password) :db/id #db/id[:db.part/user]}])
-        ]
-    (get-user (first (vals (:tempids todo))))))
-
-(defn load-user-record [uname]
-  (let [
-        db (d/db config/conn)
-        users (d/q
-               '[:find ?e
-                 :in $ ?uname
-                 :where
-                 [?e :user/username ?uname]
-                 ]
-               db uname)]
-    (if-let [user (first (first users))]
-      (get-user (first (first users)))
-      false)))
 
 (defn index-page []
   {
@@ -76,5 +47,5 @@
    (friend/authenticate app-routes
                         {
                          :login-uri "/login"
-                         :credential-fn (partial creds/bcrypt-credential-fn load-user-record)
+                         :credential-fn (partial creds/bcrypt-credential-fn users/by-username)
                          :workflows [(workflows/interactive-form)]})))
