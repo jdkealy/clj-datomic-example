@@ -10,19 +10,18 @@
    [cheshire.core :as cc]
    [compojure.handler :as handler]
    [clj-cms.users :as users]
-   ))
+   [clj-cms.templates :as t]))
 
 (defn index-page []
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (slurp "resources/home.html")})
+   :body (t/home-page)})
 
 (defroutes routes
   (GET "/" [] (index-page))
   (context "/user" [] users/routes)
   (GET "/login" [] (index-page))
   (route/resources "/")
-
   (route/not-found "<h1>Page not found</h1>"))
 
 (def app-routes (

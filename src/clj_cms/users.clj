@@ -6,7 +6,9 @@
                     [credentials :as creds])
    [clj-cms.config :as config])
   (:require
+   [hiccup.core :as h]
    [clj-cms.utils :as utils]
+   [clj-cms.templates :as t]
    [cemerick.friend :as friend]
    [datomic.api :as d]
    [cheshire.core :as cc]))
@@ -37,48 +39,46 @@
       false)))
 
                                         ;views
-
 (defn account-page [acc]
   (println acc)
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (slurp "resources/user/account.html")})
+   :body (h/html t/head)})
 
-(defn login-page []
+(defn login-page [params]
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (slurp "resources/user/login.html")})
+   :body (t/sign-in-page params)})
 
 (defn sign-up-page []
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (slurp "resources/user/sign-up.html")})
+   :body (t/sign-up-page)})
 
                                         ;api
-(defn sign-up-handler []
-  {:status 200
-   :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (cc/generate-string {:foo "BAR"})})
+(defn sign-up-handler [r]
+  (let [user (create (:username r) (:password r))]
+    {:status 200
+     :headers {"Content-Type" "text/html; charset=utf-8"}
+     :body (cc/generate-string user)}))
 
 (defn current-user [request]
   (friend/authenticated
    (-> (friend/current-authentication request)
                                         ; (select-keys [:username :password])
        utils/json-response)))
-
                                         ;routes
 
 (defroutes routes
-  (GET "/" [request]
+  (GET "/" request
        (friend/authenticated
         (-> (friend/current-authentication request)
             (account-page))))
-  (GET "/login" [] (login-page))
+  (GET "/testing" [] (testing-page))
+  (GET "/login" {params :params} (login-page params))
   (GET "/sign-up" [] (sign-up-page))
-  (POST "/sign-up" [] (sign-up-handler))
+  (POST "/sign-up" {params :params} (sign-up-handler params))
   (GET "/echo-roles" request (current-user request))
-  (GET "/admin" request
-       (friend/authorize #{::user} "This page can only be seen by authenticated users."))
   (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
   (route/resources "/"))
 
