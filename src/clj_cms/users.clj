@@ -40,10 +40,9 @@
 
                                         ;views
 (defn account-page [acc]
-  (println acc)
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (h/html t/head)})
+   :body (t/user-page)})
 
 (defn login-page [params]
   {:status 200
@@ -67,6 +66,10 @@
    (-> (friend/current-authentication request)
                                         ; (select-keys [:username :password])
        utils/json-response)))
+
+(comment
+  (friend/auth? {})
+  (create "jdkealy@gmail.com" "foobar"))
                                         ;routes
 
 (defroutes routes
@@ -74,7 +77,6 @@
        (friend/authenticated
         (-> (friend/current-authentication request)
             (account-page))))
-  (GET "/testing" [] (testing-page))
   (GET "/login" {params :params} (login-page params))
   (GET "/sign-up" [] (sign-up-page))
   (POST "/sign-up" {params :params} (sign-up-handler params))

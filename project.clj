@@ -2,9 +2,7 @@
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :ring {:handler clj-cms.core/app
-         :auto-reload? true
-
-         }
+         :auto-reload? true}
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :plugins [[lein-ring "0.8.10"]]

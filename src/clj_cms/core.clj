@@ -31,5 +31,7 @@
                  wrap-keyword-params
                  wrap-reload))
 
-(def app
-  (handler/site (users/wrap-auth app-routes)))
+
+(defonce session-store (ring.middleware.session.memory/memory-store))
+
+(def app (handler/site (users/wrap-auth app-routes) {:session {:store session-store}}))
