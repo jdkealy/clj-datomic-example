@@ -1,5 +1,6 @@
 /target
 /lib
+/resources/public/js/out*
 /classes
 /checkouts
 pom.xml
