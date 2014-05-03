@@ -5,8 +5,8 @@
 (def head
   [:head [:link {:href "/css/main.css" :rel "stylesheet" :type "text/css"}]
    [:link {:href "/css/bootstrap.min.css" :rel "stylesheet" :type "text/css"}]
-   ;[:script {:type "text/javascript" :src "http://fb.me/react-0.9.0.js"}]
-   ;[:script {:type "text/javascript" :src "js/out/goog/base.js"}]
+   [:script {:type "text/javascript" :src "http://fb.me/react-0.9.0.js"}]
+   [:script {:type "text/javascript" :src "js/out/goog/base.js"}]
    [:script {:type "text/javascript" :src "/js/main.js"}]
 ])
 
@@ -57,7 +57,8 @@
    (body
     (nav)
     content
-    ;[:script {:type "text/javacript"} "goog.require('clj-cms.core')"]
+    [:script {:type "text/javascript" :src "/js/load.js"}]
+
     )))
 
 (defn home-page []
