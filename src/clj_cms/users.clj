@@ -19,12 +19,6 @@
   (let [user (d/touch (d/entity (d/db config/conn) id))]
     {:username (:user/username user) :password (:user/password user) :id (:db/id user)}))
 
-(defn create [username password]
-  (let [user @(d/transact
-               config/conn
-               [{:user/username username :user/password (creds/hash-bcrypt password) :db/id #db/id[:db.part/user]}])]
-    (by-id (first (vals (:tempids user))))))
-
 (defn by-username[uname]
   (let [
         db (d/db config/conn)
@@ -37,12 +31,19 @@
     (if-let [user (first (first users))]
       (by-id (first (first users)))
       false)))
+(defn create [username password]
+  (if (by-username username)
+    {:error "user already exist"}
+    (let [user @(d/transact
+               config/conn
+               [{:user/username username :user/password (creds/hash-bcrypt password) :db/id #db/id[:db.part/user]}])]
+      (by-id (first (vals (:tempids user)))))))
 
                                         ;views
 (defn account-page [acc]
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body (t/user-page)})
+   :body (t/user-page acc)})
 
 (defn login-page [params]
   {:status 200
@@ -69,7 +70,7 @@
 
 (comment
   (friend/auth? {})
-  (create "jdkealy@gmail.com" "foobar"))
+  (create "jdkealy@gmai2l.com" "foobar"))
                                         ;routes
 
 (defroutes routes

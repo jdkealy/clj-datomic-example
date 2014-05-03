@@ -58,8 +58,8 @@
 (defn home-page []
   (layout))
 
-(defn user-page []
-  (layout "HELLO WOLRD")
+(defn user-page [user]
+  (layout (:username user))
   )
 
 (defn sign-in-page [params]
