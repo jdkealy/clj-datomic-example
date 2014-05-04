@@ -21,6 +21,7 @@
      :username (:user/username user)
      :first_name (:user/username user)
      :password (:user/password user)
+     :db/id (:db/id user)
      :id (:db/id user)}))
 
 (defn by-username[uname]
@@ -73,7 +74,7 @@
        utils/json-response)))
 
 (defn user-info [request]
-  (utils/generate-response request))
+  (utils/generate-response (by-username (:username  request))))
 
 (defn update-user-info [request id]
   (utils/generate-response {:monkey "BAR"}))

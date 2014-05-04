@@ -48,10 +48,8 @@
         :url (str "/user/info")
         :on-complete
         (fn [res]
-          (om/update! data :user/first_name (:user/first_name res))
-          (om/update! data :user/last_name (:user/last_name res))
-          (om/update! data :user/zip (:user/zip res))
-          (om/update! data :db/id (:db/id res)))})
+          (om/update! data :db/id (:db/id res))
+          (om/update! data :foo "bar"))})
       )
     om/IRenderState
     (render-state [_ state]
@@ -79,11 +77,6 @@
                            :value (:user/last_name data)
                                 :onChange #(handle-change % data owner :user/last_name)})
                  (i/input data {
-                           :label "User Name"
-                                :label-size "narrow"
-                           :value (:user/username data)
-                                :onChange #(handle-change % data owner :user/username)})
-                 (i/input data {
                            :label "ZIP"
                            :label-size "narrow"
                            :value (:user/zip data)
@@ -95,7 +88,7 @@
                                          :data {
                                                 :first_name "MEOW"
                                                 :last_name "MEOW"}
-                                         :url (str "/user/info/" (:id @app-state))
+                                         :url (str "/user/info/" (:db/id @app-state))
                                          :on-complete
                                          (fn [res]
                                            (om/update! data :first_name (:username res)))}))})
