@@ -19,8 +19,8 @@
   (let [user (d/touch (d/entity (d/db config/conn) id))]
     {
      :username (:user/username user)
-     :user/first_name (:user/first_name user)
-     :user/last_name (:user/last_name user)
+     :first_name (:user/username user)
+     :password (:user/password user)
      :id (:db/id user)}))
 
 (defn by-username[uname]
