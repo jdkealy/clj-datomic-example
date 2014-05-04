@@ -17,7 +17,11 @@
 
 (defn by-id [id]
   (let [user (d/touch (d/entity (d/db config/conn) id))]
-    {:username (:user/username user) :password (:user/password user) :id (:db/id user)}))
+    {
+     :username (:user/username user)
+     :user/first_name (:user/first_name user)
+     :user/last_name (:user/last_name user)
+     :id (:db/id user)}))
 
 (defn by-username[uname]
   (let [
@@ -31,6 +35,7 @@
     (if-let [user (first (first users))]
       (by-id (first (first users)))
       false)))
+
 (defn create [username password]
   (if (by-username username)
     {:error "user already exist"}
@@ -65,8 +70,13 @@
 (defn current-user [request]
   (friend/authenticated
    (-> (friend/current-authentication request)
-                                        ; (select-keys [:username :password])
        utils/json-response)))
+
+(defn user-info [request]
+  (utils/generate-response request))
+
+(defn update-user-info [request id]
+  (utils/generate-response {:monkey "BAR"}))
 
 (comment
   (friend/auth? {})
@@ -79,6 +89,17 @@
         (-> (friend/current-authentication request)
             (account-page))))
   (GET "/login" {params :params} (login-page params))
+  (GET "/info" request
+       (friend/authenticated
+        (-> (friend/current-authentication request)
+            (user-info))))
+
+  (PUT "/info/:id" {{:keys [id]} :params body :body request :request}
+       (friend/authenticated
+        (->
+         (friend/current-authentication request)
+         (update-user-info id))))
+
   (GET "/sign-up" [] (sign-up-page))
   (POST "/sign-up" {params :params} (sign-up-handler params))
   (GET "/echo-roles" request (current-user request))

@@ -24,6 +24,7 @@
                  [compojure "1.1.6"]
                  [org.clojure/clojurescript "0.0-2173"]
                  [om "0.5.3"]
+                 [sablono "0.2.16"]
                  [cljs-ajax "0.2.3"]
                  [secretary "1.1.0"]]
   :cljsbuild {:builds [{

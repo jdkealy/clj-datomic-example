@@ -57,6 +57,7 @@
    (body
     (nav)
     content
+    [:div {:id "body"}]
     [:script {:type "text/javascript" :src "/js/load.js"}]
 
     )))
@@ -65,7 +66,7 @@
   (layout))
 
 (defn user-page [user]
-  (layout (:username user))
+  (layout)
   )
 
 (defn sign-in-page [params]

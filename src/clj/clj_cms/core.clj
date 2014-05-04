@@ -1,8 +1,10 @@
 (ns clj-cms.core
   (:use
    [ring.adapter.jetty             :only [run-jetty]]
+
    [compojure.core                 :only [defroutes GET POST DELETE PUT ANY context]]
    [ring.middleware.params         :only [wrap-params]]
+   [ring.middleware.edn :refer [wrap-edn-params]]
    [ring.middleware  keyword-params file file-info stacktrace reload]
    )
   (:require
@@ -27,11 +29,15 @@
 (def app-routes (
                  ->
                  routes
+                 wrap-reload
+                 users/wrap-auth
                  wrap-params
                  wrap-keyword-params
-                 wrap-reload))
+                 wrap-edn-params
+                 ))
 
 
 (defonce session-store (ring.middleware.session.memory/memory-store))
 
-(def app (handler/site (users/wrap-auth app-routes) {:session {:store session-store}}))
+(def app (handler/site app-routes
+                {:session {:store session-store}}))
