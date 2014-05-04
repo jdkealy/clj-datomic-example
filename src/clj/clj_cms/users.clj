@@ -22,9 +22,8 @@
             (assoc
                 (into {} user)
               :username (:user/username user))
-          :password (:user/password user)
-
-          ):id id)))
+          :password (:user/password user))
+      :id id)))
 
 
 (defn by-username[uname]

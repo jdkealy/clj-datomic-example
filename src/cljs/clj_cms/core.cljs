@@ -86,12 +86,10 @@
                                 :onChange #(handle-change % data owner :user/zip)})
                  (i/submit {
                             :onClick (fn [e]
+
                                        (u/edn-xhr
                                         {:method :put
-                                         :data {
-                                                :user/first_name "MEOW"
-                                                :user/last_name "MEOW"
-                                                :user/zip "OK BABY OK"}
+                                         :data (dissoc (into {} @app-state) :user/username :id :username)
                                          :url (str "/user/info/" (:id @app-state))
                                          :on-complete
                                          (fn [res]
