@@ -48,8 +48,11 @@
         :url (str "/user/info")
         :on-complete
         (fn [res]
-          (om/update! data :db/id (:db/id res))
-          (om/update! data :foo "bar"))})
+          (om/update! data :id (:id res))
+          (om/update! data :user/first_name (:user/first_name res))
+          (om/update! data :user/last_name (:user/last_name res))
+          (om/update! data :user/zip (:user/zip res))
+          )})
       )
     om/IRenderState
     (render-state [_ state]
@@ -86,9 +89,10 @@
                                        (u/edn-xhr
                                         {:method :put
                                          :data {
-                                                :first_name "MEOW"
-                                                :last_name "MEOW"}
-                                         :url (str "/user/info/" (:db/id @app-state))
+                                                :user/first_name "MEOW"
+                                                :user/last_name "MEOW"
+                                                :user/zip "OK BABY OK"}
+                                         :url (str "/user/info/" (:id @app-state))
                                          :on-complete
                                          (fn [res]
                                            (om/update! data :first_name (:username res)))}))})

@@ -16,13 +16,16 @@
                                         ;models
 
 (defn by-id [id]
-  (let [user (d/touch (d/entity (d/db config/conn) id))]
-    {
-     :username (:user/username user)
-     :first_name (:user/username user)
-     :password (:user/password user)
-     :db/id (:db/id user)
-     :id (:db/id user)}))
+  (let [user (d/.touch (d/entity (d/db config/conn) id))]
+    (assoc
+        (assoc
+            (assoc
+                (into {} user)
+              :username (:user/username user))
+          :password (:user/password user)
+
+          ):id id)))
+
 
 (defn by-username[uname]
   (let [
@@ -36,6 +39,18 @@
     (if-let [user (first (first users))]
       (by-id (first (first users)))
       false)))
+
+(defn update-transaction [transactions]
+  @(d/transact
+    config/conn
+    transactions))
+
+(defn update [id params]
+  (update-transaction [{:user/username "FOO" :db/id id}]))
+
+(comment
+  (type (by-username "jdkealy@gmail.com"))
+  (by-username "jdkealy@gmail.com"))
 
 (defn create [username password]
   (if (by-username username)
@@ -76,11 +91,33 @@
 (defn user-info [request]
   (utils/generate-response (by-username (:username  request))))
 
-(defn update-user-info [request id]
-  (utils/generate-response {:monkey "BAR"}))
+(defn update-transact [transactions]
+  (let [updates @(d/transact
+                  config/conn
+                  transactions)]
+    updates
+    ))
+(defn map-transaction [id params]
+  (vec (map (fn [e]
+               (assoc (apply array-map e)
+                 :db/id (read-string id))
+               ) params)))
+
+(defn update-user-info [request id params]
+  (let [transaction (map-transaction id params)]
+    (utils/generate-response (update-transact transaction)
+     )))
+
+(comment
+  (map-transaction (:id (by-username "jdkealy@gmail.com"))
+                   {:user/first_name "MEOW"})
+  (update-transact
+   (map-transaction (:id (by-username "jdkealy@gmail.com"))
+                    {:user/first_name "MEOW"})))
 
 (comment
   (friend/auth? {})
+  (by-id 17592186045520)
   (create "jdkealy@gmai2l.com" "foobar"))
                                         ;routes
 
@@ -95,11 +132,11 @@
         (-> (friend/current-authentication request)
             (user-info))))
 
-  (PUT "/info/:id" {{:keys [id]} :params body :body request :request}
+  (PUT "/info/:id" {{:keys [id]} :params body :body request :request params :edn-params}
        (friend/authenticated
         (->
          (friend/current-authentication request)
-         (update-user-info id))))
+         (update-user-info id params))))
 
   (GET "/sign-up" [] (sign-up-page))
   (POST "/sign-up" {params :params} (sign-up-handler params))
