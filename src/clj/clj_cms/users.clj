@@ -14,7 +14,6 @@
    [cheshire.core :as cc]))
 
                                         ;models
-
 (defn by-id [id]
   (let [user (d/.touch (d/entity (d/db config/conn) id))]
     (assoc
@@ -24,7 +23,6 @@
               :username (:user/username user))
           :password (:user/password user))
       :id id)))
-
 
 (defn by-username[uname]
   (let [
@@ -99,12 +97,13 @@
 (defn map-transaction [id params]
   (vec (map (fn [e]
                (assoc (apply array-map e)
-                 :db/id (read-string id))
+                 :db/id id)
                ) params)))
 
 (defn update-user-info [request id params]
   (let [transaction (map-transaction id params)]
-    (utils/generate-response (update-transact transaction)
+    (update-transact transaction)
+    (utils/generate-response (by-id id)
      )))
 
 (comment
@@ -135,7 +134,7 @@
        (friend/authenticated
         (->
          (friend/current-authentication request)
-         (update-user-info id params))))
+         (update-user-info (read-string  id) params))))
 
   (GET "/sign-up" [] (sign-up-page))
   (POST "/sign-up" {params :params} (sign-up-handler params))
