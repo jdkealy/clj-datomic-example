@@ -93,7 +93,7 @@
                                          :url (str "/user/info/" (:id @app-state))
                                          :on-complete
                                          (fn [res]
-                                           (om/update! data :first_name (:username res)))}))})
+                                           (print res))}))})
                  )]]))))
 
 (om/root app-view app-state {:target (gdom/getElement "body")})
