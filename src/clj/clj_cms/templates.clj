@@ -56,25 +56,26 @@
    head
    (body
     (nav)
-    content
-    [:div {:id "body"}]
-    [:script {:type "text/javascript" :src "/js/load.js"}]
-
-    )))
+    content)))
 
 (defn home-page []
   (layout))
 
 (defn user-page [user]
-  (layout)
-  )
+  (layout [:div {:id "body"}][:script {:type "text/javascript" :src "/js/load.js"}]))
+
+(defn pages-page [user]
+  (layout
+   [:div {:id "pages"}]
+   [:div {:id "new-page"}]
+   [:script {:type "text/javascript" :src "/js/pages.js"}]))
 
 (defn sign-in-page [params]
   (layout
    (form "/user/login"
-            (input  "USERNAME" "username" "text input form-control" (:username params))
-            (password  "PASSWORD" "password" "text input form-control")
-            (button "PASSWORD"  "btn-primary btn form-control"))))
+         (input  "USERNAME" "username" "text input form-control" (:username params))
+         (password  "PASSWORD" "password" "text input form-control")
+         (button "PASSWORD"  "btn-primary btn form-control"))))
 
 (defn sign-up-page []
   (layout

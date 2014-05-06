@@ -45,11 +45,35 @@
                          :onChange (:onChange data)}]
         (html [:input input-attrs])))))
 
+(defn to-option [option]
+                                        ;  [:option {:value (:value) option} (:display option)]
+  [:option {:value (:value option)} (:display option)]
+  )
+(defn om-select [data owner]
+  (reify
+    om/IRenderState
+    (render-state [_ state]
+      (let [input-attrs {
+                         :type "text"
+                         :class "control form-control"
+                         :value (:value data)
+                         :onChange (:onChange data)}]
+        (html [:select input-attrs
+               (map to-option (:options data))
+               ])))))
+
 (defn input [data att]
   [:div {:class "form-group"}
      (label att)
      [:div {:class (str (:input (label-size-class (:label-size att))))}
       (om/build om-input att)]])
+
+(defn dropdown [data att]
+
+  [:div {:class "form-group"}
+   (label att)
+   [:div {:class (str (:input (label-size-class (:label-size att))))}
+    (om/build om-select att)]])
 
 (defn submit [att]
   [:a {

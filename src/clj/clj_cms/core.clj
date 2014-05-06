@@ -12,6 +12,7 @@
    [cheshire.core :as cc]
    [compojure.handler :as handler]
    [clj-cms.users :as users]
+   [clj-cms.pages :as pages]
    [clj-cms.templates :as t]))
 
 (defn index-page []
@@ -22,6 +23,7 @@
 (defroutes routes
   (GET "/" [] (index-page))
   (context "/user" [] users/routes)
+  (context "/pages" [] pages/routes)
   (GET "/login" [] (index-page))
   (route/resources "/")
   (route/not-found "<h1>Page not found</h1>"))

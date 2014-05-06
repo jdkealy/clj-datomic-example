@@ -1,6 +1,7 @@
 [
  {:db/id #db/id[:db.part/db]
   :db/ident :user/username
+  :db/unique :db.unique/value
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/fulltext true
@@ -33,5 +34,37 @@
   :db/cardinality :db.cardinality/one
   :db/fulltext true
   :db/doc "Zip"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :user/gender
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/fulltext true
+  :db/doc "Gender"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :user.gender/female}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :user.gender/male}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :page/title
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/fulltext true
+  :db/doc "Title"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :page/body
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/fulltext true
+  :db/doc "Body"
+  :db.install/_attribute :db.part/db}
+ {:db/id #db/id[:db.part/db]
+  :db/ident :page/user
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/fulltext true
+  :db/doc "Body"
   :db.install/_attribute :db.part/db}
  ]

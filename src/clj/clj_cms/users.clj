@@ -14,6 +14,21 @@
    [cheshire.core :as cc]))
 
                                         ;models
+(defn string-to-enum [i]
+  (case (:user/gender (apply array-map i))
+    "M" [:user/gender :user.gender/male]
+    "male" [:user/gender :user.gender/male]
+    "F" [:user/gender :user.gender/female]
+    "female" [:user/gender :user.gender/female]
+    i))
+
+(comment
+  (map string-to-enum {:user/first_name "MEOW" :user/gender "M"})
+  (map (fn [e]
+         (string-to-enum e)
+         ) {:user/first_name "MEOW" :user/gender "M"}))
+
+
 (defn by-id [id]
   (let [user (d/.touch (d/entity (d/db config/conn) id))]
     (assoc
@@ -41,9 +56,6 @@
   @(d/transact
     config/conn
     transactions))
-
-(defn update [id params]
-  (update-transaction [{:user/username "FOO" :db/id id}]))
 
 (comment
   (type (by-username "jdkealy@gmail.com"))
@@ -96,22 +108,21 @@
     ))
 (defn map-transaction [id params]
   (vec (map (fn [e]
-               (assoc (apply array-map e)
-                 :db/id id)
-               ) params)))
+              (let [map-nums (string-to-enum e)]
+                ;map-nums
+                (assoc (apply array-map map-nums) :db/id id)
+                )) params)))
+
+(comment
+  (map-transaction 1 {
+                      :foo ""
+                      }))
 
 (defn update-user-info [request id params]
   (let [transaction (map-transaction id params)]
     (update-transact transaction)
-    (utils/generate-response (by-id id)
-     )))
-
-(comment
-  (map-transaction (:id (by-username "jdkealy@gmail.com"))
-                   {:user/first_name "MEOW"})
-  (update-transact
-   (map-transaction (:id (by-username "jdkealy@gmail.com"))
-                    {:user/first_name "MEOW"})))
+    (utils/generate-response (by-id id))
+    ))
 
 (comment
   (friend/auth? {})
