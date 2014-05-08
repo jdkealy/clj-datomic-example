@@ -25,7 +25,7 @@
         db (d/db config/conn)
         pages (d/q
                '[:find ?e
-                 :in $ ?uname
+                 :in $ ?title
                  :where
                  [?e :page/title ?title]]
                db title)]
