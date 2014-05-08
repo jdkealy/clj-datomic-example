@@ -7,22 +7,37 @@
    [sablono.core :as html :refer-macros [html]]
    [cljcms.inputs :as i]
    [cljcms.utils :as u]
-   [domina :as d]
+
    [clojure.string :as string])
   )
 
-(def comments (atom {:comments []}))
-(def new-comment (atom {}))
+(def comments (atom
+               {
+                :new-comment ""
+                :comments []}))
 
-(defn to-comment [comment]
-  [:li {:class "list-group-item row-fluid"}
-   (:comment/body comment)
-   [:div {:class "btn-group pull-right"}
-    [:a {
-         :onClick (fn [e]
-                    (print "YEAH OK")
-                    )
-         :class "btn btn-primary"} "REPLY"]]])
+(defn to-comment [data owner opts]
+  (reify
+    om/IInitState
+    (init-state [_]
+      {:open false})
+    om/IRenderState
+    (render-state [_ state]
+      (print opts)
+      (html
+       [:div
+        [:li {:class (str "list-group-item row-fluid" (:class opts))}
+         (:comment/body data)
+         [:div {:class "btn-group pull-right"}
+          [:a {
+               :onClick (fn [e]
+                          (om/set-state! owner :open true))
+               :class "btn btn-primary"} "REPLY"]]]
+        (map (fn [e]                 (om/build to-comment e {:opts {:class "child inset"}}))(:comments data))
+        (when
+            (om/get-state owner :open)
+          [:li {:class "list-group-item row-fluid"}
+           (om/build new-comment-view data {:init-state {:commentable-id (str (:db/id data))}})])]))))
 
 (defn comments-view [data owner]
   (reify
@@ -30,7 +45,7 @@
     (will-mount [_]
       (u/edn-xhr
        {:method :get
-        :url (str "/comments")
+        :url (str "/comments?commentable-id=" (value (by-id "page-id")))
         :on-complete
         (fn [res]
           (om/update! data :comments res)
@@ -41,7 +56,9 @@
       (html
        [:div
         [:ul {:class "list-group"}
-         (map to-comment (:comments data))
+         (map (fn [e]
+                (om/build to-comment e )
+                )(:comments data))
          ]]))))
 
 (defn loadCommentForm [e d]
@@ -62,7 +79,7 @@
              :class "btn btn-primary"} (str "LEAVE A COMMENT +")]
         (when (om/get-state owner :open)
           (om/build new-comment-view data {:init-state {
-                                                        :commentable-id 1
+                                                        :commentable-id (value (by-id "page-id"))
                                                         }}))]))))
 
 (defn new-comment-view [data owner]
@@ -76,14 +93,15 @@
                  (i/textarea data {
                            :label "BODY"
                            :label-size "narrow"
-                           :value (:comment/body data)
-                                :onChange #(u/handle-change % data owner :comment/body)})
+                                   :value (:new-comment data)
+                                   :onChange #([ee ff]
+                                                 (om/update! data :new-comment (.. % -target -value)))})
                  (i/submit {
                             :onClick (fn [e]
                                        (u/edn-xhr {
                                                    :method :post
                                                    :data (->
-                                                          @data
+                                                          {:comment/body (:new-comment @data)}
                                                           (assoc :commentable-id (:commentable-id (om/get-state owner)))
                                                           (u/clean-vals))
                                                    :url "comments"
@@ -91,5 +109,5 @@
                                                    (fn [res]
                                                      (print))}))}))]]))))
 
-(om/root comment-btn new-comment {:target (gdom/getElement "new-comment")})
+(om/root comment-btn  comments {:target (gdom/getElement "new-comment")})
 (om/root comments-view comments {:target (gdom/getElement "comments")})

@@ -35,3 +35,7 @@ li.item{
     cursor:pointer;
     height:200px;
 }
+
+.inset{
+    margin-left:20px;
+}

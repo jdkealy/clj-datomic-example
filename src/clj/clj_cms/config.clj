@@ -3,7 +3,7 @@
    [datomic.api :as d])
   )
 
-(def uri "datomic:free://localhost:4334/blog_four")
+(def uri "datomic:free://localhost:4334/blog_six")
 
 ;; create database
 (d/create-database uri)

@@ -26,33 +26,42 @@
     (by-id (first (vals (:tempids comment))))))
 
 
-(defn touch-ident [ident]
+(defn touch-id [id]
   (let [db (d/db conn)]
-    (d/touch (d/entity db (first ident)))))
+    (d/touch (d/entity db id))))
 
-(defn all []
-  (let [
-        db (d/db config/conn)
-        comments (d/q
-               '[:find ?e
-                 :where
-                 [?e :comment/body _]]
-               db)]
-    (map touch-ident comments)
+(defn touch-ident [ident]
+  (let [db (d/db conn)
+        ident (d/touch (d/entity db (first ident)))]
+    ident
     ))
 
-(comment
-  (let [comment-id (d/tempid :db.part/user)
-        post-id (:db/id (p/by-title "foo"))]
-    (create "foo" comment-id post-id))
-  (class  (:page/comments  (p/by-title "foo")))
+(defn touch-accessor [ident]
+  (let [db (d/db conn)
+        item (d/touch (d/entity db (:db/id ident)))]
+    (assoc (into {:db/id (:db/id item)} item) :comments (map touch-accessor (:comments item)))
+    ;(into {:db/id (:db/id item)} item)
+    ))
 
-  {:comment/body "foo bar ok", :commentable-id "17592186045421"}
-  )
+(defn all [commentable]
+  (if commentable
+    (let [item (touch-ident [commentable])]
+      (vec (map touch-accessor (:comments item))))
+    (let [
+          db (d/db config/conn)
+          comments (d/q
+                    '[:find ?e
+                      :where
+                      [?e :comment/body _]]
+                    db)]
+      (map touch-ident comments))))
+
+(cc/generate-string  (all 17592186045421))
+(all 17592186045421)
 
 (defn handle-post [user params]
   (let [comment-id (d/tempid :db.part/user)
-        post-id (:db/id (p/by-title "foo"))
+        post-id (read-string (:commentable-id params))
         comment (create (:comment/body params) comment-id post-id)
         ]
     (utils/generate-response comment)))
@@ -63,6 +72,8 @@
         (-> (friend/current-authentication request)
             (handle-post params)
             )))
-  (GET "/" {}
-       (utils/generate-response (all)))
+  (GET "/" {params :params}
+       (utils/generate-response (all (read-string (:commentable-id params)))))
+
+
   (route/resources "/"))

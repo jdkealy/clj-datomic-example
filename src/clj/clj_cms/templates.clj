@@ -73,10 +73,11 @@
 
 (defn page [page]
   (layout
-   [:h2 (:page/title page)]
+   [:h2 (:db/id page)]
    (:page/body page)
    [:div {:id "new-comment"}]
    [:div {:id "comments"}]
+   [:input {:id "page-id" :type "hidden" :value (str (:db/id page))}]
    [:input {:id "page-id" :type "hidden" :value (str (:db/id page))}]
    [:script {:type "text/javascript" :src "/js/comments.js"}]))
 
