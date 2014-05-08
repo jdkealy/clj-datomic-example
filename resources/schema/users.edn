@@ -68,11 +68,12 @@
   :db/doc "Body"
   :db.install/_attribute :db.part/db}
 
- {:db/id #db/id[:db.part/db]
-  :db/ident :page/comments
+  {:db/id #db/id[:db.part/db]
+  :db/ident :comments
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/many
   :db.install/_attribute :db.part/db}
+
 
  {:db/id #db/id[:db.part/db]
   :db/ident :comment/body

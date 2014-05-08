@@ -17,12 +17,12 @@
   (let [comment (d/.touch (d/entity (d/db config/conn) id))]
     (assoc (into {} comment) :db/id id)))
 
-(defn create [body comment-id post-id]
+(defn create [body comment-id resource-id]
   (let [comment @(d/transact
                config/conn
                [
                 {:comment/body body :db/id comment-id}
-                {:db/id post-id :page/comments comment-id}])]
+                {:db/id resource-id :comments comment-id}])]
     (by-id (first (vals (:tempids comment))))))
 
 
@@ -46,6 +46,8 @@
         post-id (:db/id (p/by-title "foo"))]
     (create "foo" comment-id post-id))
   (class  (:page/comments  (p/by-title "foo")))
+
+  {:comment/body "foo bar ok", :commentable-id "17592186045421"}
   )
 
 (defn handle-post [user params]
