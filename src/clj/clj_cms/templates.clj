@@ -49,6 +49,7 @@
     [:li {:class ""} [:a {:href "/user/sign-up"} "SIGN UP"]]
     [:li {:class ""} [:a {:href "/user/login"} "SIGN IN"]]
     [:li {:class ""} [:a {:href "/user/logout"} "LOGOUT"]]
+    [:li {:class ""} [:a {:href "/pages/list"} "MY PAGES"]]
     [:li {:class ""} [:a {:href "/user/"} "MY ACCOUT"]]]))
 
 (defn layout [& content]
@@ -69,6 +70,15 @@
    [:div {:id "pages"}]
    [:div {:id "new-page"}]
    [:script {:type "text/javascript" :src "/js/pages.js"}]))
+
+(defn page [page]
+  (layout
+   [:h2 (:page/title page)]
+   (:page/body page)
+   [:div {:id "new-comment"}]
+   [:div {:id "comments"}]
+   [:input {:id "page-id" :type "hidden" :value (str (:db/id page))}]
+   [:script {:type "text/javascript" :src "/js/comments.js"}]))
 
 (defn sign-in-page [params]
   (layout

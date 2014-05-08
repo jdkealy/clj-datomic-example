@@ -20,12 +20,28 @@
   (let [page (d/.touch (d/entity (d/db config/conn) id))]
     (assoc (into {} page) :db/id id)))
 
+(defn by-title[title]
+  (let [
+        db (d/db config/conn)
+        pages (d/q
+               '[:find ?e
+                 :in $ ?uname
+                 :where
+                 [?e :page/title ?title]]
+               db title)]
+    (if-let [page (first (first pages))]
+      (by-id (first (first pages)))
+      false)))
+
 (defn create [title body]
   (let [page @(d/transact
                config/conn
                [{:page/title title :page/body body :db/id #db/id[:db.part/user]}])]
     (by-id (first (vals (:tempids page))))))
 
+(comment
+  (create "FOO" "BAR")
+  )
 
 (defn list [search-params]
   (vec (map touch-ident (let [db (d/db config/conn)]
@@ -44,6 +60,13 @@
   {:status 200
    :headers {"Content-Type" "text/html; charset=utf-8"}
    :body (t/pages-page acc)})
+
+(defn page [id]
+  (if-let [p (by-title id)]
+    {:status 200
+     :headers {"Content-Type" "text/html; charset=utf-8"}
+     :body (t/page p)}
+    {:status 500}))
 
 (defn handle-update [id params])
 
@@ -66,8 +89,4 @@
        (friend/authenticated
         (-> (friend/current-authentication request)
             (pages-page))))
-  (GET "/:id" {{:keys [id]} :params}
-       "FOO"
-       )
-
   (route/resources "/"))

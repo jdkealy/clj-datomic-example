@@ -17,6 +17,10 @@
   [items]
   (into {} (remove (fn [[k v]] (nil? v)) items)))
 
+(defn dissoc-static-keys
+  [atom]
+  (dissoc (into {} atom) :db/id ))
+
 (defn new-page-view [data owner]
   (reify
     om/IRenderState
@@ -48,9 +52,9 @@
                  )]]))))
 
 (defn to-page [data]
-  [:li
-   (:page/title data)
-   ])
+  [:li {:class "list-group-item"}
+   [:a {:href (str "/" (:page/title data))}
+    (:page/title data)]])
 
 (defn pages-view [data owner]
   (reify
@@ -68,7 +72,7 @@
     (render [_]
       (html
        [:div
-        [:ul
+        [:ul {:class "list-group"}
          (map to-page (:pages data))
          ]]))))
 

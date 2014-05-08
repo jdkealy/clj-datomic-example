@@ -62,11 +62,29 @@
                (map to-option (:options data))
                ])))))
 
+(defn om-textarea [data owner]
+  (reify
+    om/IRenderState
+    (render-state [_ state]
+      (let [input-attrs {
+                         :type "text"
+                         :class "control form-control"
+                         :value (:value data)
+                         :onChange (:onChange data)}]
+        (html [:textarea input-attrs
+               ])))))
+
 (defn input [data att]
   [:div {:class "form-group"}
      (label att)
      [:div {:class (str (:input (label-size-class (:label-size att))))}
       (om/build om-input att)]])
+
+(defn textarea [data att]
+  [:div {:class "form-group"}
+     (label att)
+     [:div {:class (str (:input (label-size-class (:label-size att))))}
+      (om/build om-textarea att)]])
 
 (defn dropdown [data att]
 

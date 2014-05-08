@@ -12,34 +12,48 @@
    [cemerick.friend :as friend]
    [datomic.api :as d]
    [cheshire.core :as cc]))
-(comment
 
-(d/q '[:find ?aid ?a ?coid
-       :where
-       [?aid :article/comments ?coid]
-       [?aid :article/title ?a]]
-     (d/db conn))
-)
-
-(defn add [a b]
-  (+ a b)
-  )
-(add 1 2)
 (defn by-id [id]
-  (let [page (d/.touch (d/entity (d/db config/conn) id))]
-    (assoc (into {} page) :db/id id)))
+  (let [comment (d/.touch (d/entity (d/db config/conn) id))]
+    (assoc (into {} comment) :db/id id)))
 
-(defn create [title body]
-  (let [page @(d/transact
+(defn create [body comment-id post-id]
+  (let [comment @(d/transact
                config/conn
-               [{:comment/body title :page/body body :db/id #db/id[:db.part/user]}])]
-    (by-id (first (vals (:tempids page))))))
+               [
+                {:comment/body body :db/id comment-id}
+                {:db/id post-id :page/comments comment-id}])]
+    (by-id (first (vals (:tempids comment))))))
+
+
+(defn touch-ident [ident]
+  (let [db (d/db conn)]
+    (d/touch (d/entity db (first ident)))))
+
+(defn all []
+  (let [
+        db (d/db config/conn)
+        comments (d/q
+               '[:find ?e
+                 :where
+                 [?e :comment/body _]]
+               db)]
+    (map touch-ident comments)
+    ))
+
+(comment
+  (let [comment-id (d/tempid :db.part/user)
+        post-id (:db/id (p/by-title "foo"))]
+    (create "foo" comment-id post-id))
+  (class  (:page/comments  (p/by-title "foo")))
+  )
 
 (defn handle-post [user params]
-  (let [p (create
-           (:page/title params)
-           (:page/body params))]
-    (utils/generate-response p)))
+  (let [comment-id (d/tempid :db.part/user)
+        post-id (:db/id (p/by-title "foo"))
+        comment (create (:comment/body params) comment-id post-id)
+        ]
+    (utils/generate-response comment)))
 
 (defroutes routes
   (POST "/" {{:keys [id]} :params body :body request :request params :edn-params}
@@ -47,8 +61,6 @@
         (-> (friend/current-authentication request)
             (handle-post params)
             )))
-  (GET "/:id" {{:keys [id]} :params}
-       "FOO"
-       )
-
+  (GET "/" {}
+       (utils/generate-response (all)))
   (route/resources "/"))

@@ -13,6 +13,7 @@
    [compojure.handler :as handler]
    [clj-cms.users :as users]
    [clj-cms.pages :as pages]
+   [clj-cms.comments :as comments]
    [clj-cms.templates :as t]))
 
 (defn index-page []
@@ -24,7 +25,9 @@
   (GET "/" [] (index-page))
   (context "/user" [] users/routes)
   (context "/pages" [] pages/routes)
+  (context "/comments" [] comments/routes)
   (GET "/login" [] (index-page))
+  (GET "/:id" [id] (pages/page id))
   (route/resources "/")
   (route/not-found "<h1>Page not found</h1>"))
 
