@@ -17,6 +17,7 @@
                  [cheshire "4.0.3"]
                  [enlive "1.1.5"]
                  [bultitude "0.1.7"]
+                 [domina "1.0.3-SNAPSHOT"]
                  [hiccup "1.0.1"]
                  [fogus/ring-edn "0.2.0"]
                  [ring.middleware.logger "0.4.0"]
