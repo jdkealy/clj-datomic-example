@@ -23,7 +23,6 @@
       {:open false})
     om/IRenderState
     (render-state [_ state]
-      (print opts)
       (html
        [:div
         [:li {:class (str "list-group-item row-fluid" (:class opts))}
@@ -31,9 +30,11 @@
          [:div {:class "btn-group pull-right"}
           [:a {
                :onClick (fn [e]
-                          (om/set-state! owner :open true))
+                          (print (om/get-state owner ))
+                          (om/set-state! owner :open true)
+                          )
                :class "btn btn-primary"} "REPLY"]]]
-        (map (fn [e]                 (om/build to-comment e {:opts {:class "child inset"}}))(:comments data))
+        (map (fn [e]                 (om/build to-comment e {:opts {:class " child inset"}}))(:comments data))
         (when
             (om/get-state owner :open)
           [:li {:class "list-group-item row-fluid"}

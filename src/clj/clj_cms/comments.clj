@@ -39,7 +39,7 @@
 (defn touch-accessor [ident]
   (let [db (d/db conn)
         item (d/touch (d/entity db (:db/id ident)))]
-    (assoc (into {:db/id (:db/id item)} item) :comments (map touch-accessor (:comments item)))
+    (assoc (into {:db/id (:db/id item)} item) :comments (vec (map touch-accessor (:comments item))))
     ;(into {:db/id (:db/id item)} item)
     ))
 
@@ -54,10 +54,7 @@
                       :where
                       [?e :comment/body _]]
                     db)]
-      (map touch-ident comments))))
-
-(cc/generate-string  (all 17592186045421))
-(all 17592186045421)
+      (vec (map touch-ident comments)))))
 
 (defn handle-post [user params]
   (let [comment-id (d/tempid :db.part/user)
